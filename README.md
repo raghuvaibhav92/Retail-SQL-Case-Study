@@ -1,14 +1,11 @@
+
 # Retail SQL Case Study 📊
 
 ## 📌 Project Overview
-This project is an end-to-end **SQL-based retail analytics case study** focused on cleaning, transforming, 
-and analyzing retail data to generate meaningful business insights.  
-The analysis simulates real-world retail scenarios involving products, customers, 
-and sales transactions using **MySQL**.
+This project is an end-to-end **SQL-based retail analytics case study** focused on cleaning, transforming, and analyzing retail data to generate meaningful business insights.  
+The analysis simulates real-world retail scenarios involving products, customers, and sales transactions using **MySQL**.
 
-The project demonstrates practical SQL skills such as data cleaning, handling inconsistencies, 
-and performing analytical 
-queries to support business decision-making.
+The project demonstrates practical SQL skills such as data cleaning, handling inconsistencies, and performing analytical queries to support business decision-making.
 
 ---
 
@@ -71,6 +68,168 @@ The analysis answers key business and analytical questions such as:
 - How loyal are customers based on first and last purchase dates?
 - How can customers be segmented based on purchase quantity?
 
+
+---📊 Advanced SQL Analysis — Key Queries & Insights
+This section highlights five important analytical SQL queries performed on the retail dataset.
+Each query includes:
+
+Clean SQL
+
+Output summary
+
+Business interpretation
+
+Screenshot of the result
+
+🔹 Query 58 — Customer Segmentation Based on Purchase Quantity
+
+WITH customer_segment AS (
+    SELECT 
+        c.CustomerID,
+        CASE
+            WHEN SUM(s.QuantityPurchased) BETWEEN 1 AND 10 THEN 'Low'
+            WHEN SUM(s.QuantityPurchased) BETWEEN 11 AND 30 THEN 'Med'
+            ELSE 'High'
+        END AS CustomerSegment
+    FROM customer_profile c
+    INNER JOIN sales_transaction s
+        ON c.CustomerID = s.CustomerID
+    GROUP BY c.CustomerID
+)
+SELECT 
+    CustomerSegment,
+    COUNT(*) AS num_cust
+FROM customer_segment
+GROUP BY CustomerSegment
+ORDER BY CustomerSegment;
+![Query 58 Output](retail@query58.png)
+
+---output
+CustomerSegment	 Number of Customers
+High	                 7
+Low	                  423
+Med	                  559
+
+
+---Insight
+
+A very small High segment (7 customers) indicates a classic Pareto pattern — a tiny group drives a large share of revenue.
+Most customers fall into Low and Medium segments, ideal for targeted marketing.
+
+
+🔹 Query 57 — Customer Lifecycle: First vs Last Purchase Gap
+
+SELECT 
+    CustomerID,
+    MIN(TransactionDate) AS FirstPurchase,
+    MAX(TransactionDate) AS LastPurchase,
+    DATEDIFF(MAX(TransactionDate), MIN(TransactionDate)) AS DaysbetweenPurchases
+FROM sales_transaction
+GROUP BY CustomerID
+HAVING DaysbetweenPurchases > 0
+ORDER BY DaysbetweenPurchases DESC;
+![Query 57 Output](retail@query57.png)
+
+---Output (Top 10)
+CustomerID	First Purchase	Last Purchase	Days Between
+215	         2023-01-01	    2023-07-28	      208
+414	         2023-01-02	    2023-07-26	      205
+664	         2023-01-01	    2023-07-24	      204
+701	         2023-01-01	    2023-07-23	      203
+277	         2023-01-02	    2023-07-24	      203
+
+
+---Insight
+Customers with long active durations (200+ days) show strong retention.
+This query helps identify loyal customers and estimate Customer Lifetime Value (CLV).
+
+
+🔹 Query 56 — Repeat Purchase Behavior (Customer × Product)
+
+SELECT 
+    CustomerID,
+    ProductID,
+    COUNT(*) AS TimesPurchased
+FROM sales_transaction
+GROUP BY CustomerID, ProductID
+HAVING COUNT(*) > 1
+ORDER BY TimesPurchased DESC;
+![Query 56 Output](retail@query56.png)
+
+---Output (Sample)
+CustomerID	ProductID	Times Purchased
+685	           192	           3
+467	           181	           2
+215	            13	           2
+492             74	           2
+
+
+
+---Insight
+Repeat purchases indicate product satisfaction and loyalty.
+Products with high repeat frequency should be prioritized for inventory planning and promotions.
+
+
+
+🔹 Query 55 — Low‑Frequency Customers (≤ 2 Transactions)
+
+SELECT 
+    CustomerID,
+    COUNT(*) AS NumberOfTransactions,
+    SUM(QuantityPurchased * Price) AS TotalSpent
+FROM sales_transaction
+GROUP BY CustomerID
+HAVING COUNT(*) <= 2
+ORDER BY NumberOfTransactions ASC, TotalSpent DESC;
+![Query 55 Output](retail@query55.png)
+
+---Output (Sample)
+CustomerID	Transactions	Total Spent
+94	           1	            360.64
+181	           1	            298.23
+979	           1	            265.16
+317	           1	            257.73
+
+
+---Insight
+These are high‑value but low‑frequency buyers.
+They are ideal targets for re‑engagement campaigns to increase repeat purchases.
+
+
+🔹 Query 54 — High‑Value Customers (Frequent Buyers + High Spend)
+
+SELECT 
+    CustomerID,
+    COUNT(*) AS NumberOfTransactions,
+    SUM(QuantityPurchased * Price) AS TotalSpent
+FROM sales_transaction
+GROUP BY CustomerID
+HAVING COUNT(*) > 10 
+   AND TotalSpent > 1000
+ORDER BY TotalSpent DESC;
+![Query 54 Output](retail@query54.png)
+
+---Output (Sample)
+CustomerID	Transactions	Total Spent
+936	           12	           2834.47
+664	           14	           2519.04
+670	           12	           2432.15
+39	           12	           2221.29
+
+
+
+---Insight
+These customers form the core loyal base.
+They should be prioritized for:
+
+Loyalty programs
+
+Exclusive offers
+
+Personalized recommendations
+
+They contribute heavily to overall revenue.
+
 ---
 
 ## 🧠 Key Insights
@@ -96,3 +255,15 @@ Retail-SQL-Case-Study/
 │
 ├── Case Study@retail analytics.sql   # Complete SQL script
 ├── README.md                         # Project documentation
+
+---
+
+✅ Conclusion
+This project showcases how SQL can be effectively used to clean raw retail data and transform it into actionable business insights.
+It reflects real-world data challenges and demonstrates analytical thinking, problem-solving, and strong SQL fundamentals.
+
+👤 Author
+Vaibhav Chouhan
+Aspiring Data Analyst | SQL & Retail Analytics Enthusiast
+
+⭐ If you find this project helpful, feel free to star the repository!
