@@ -1,346 +1,497 @@
--- analyzing and data cleaning of product_inventory table
-query1:-- retreiving data of product_inventory 
-select * from product_inventory;
-Actionoutput:200 row(s) returned
-query2:-- CHANGING THE NAME OF COLUMN
-alter table product_inventory
-rename column ï»¿ProductID to productid;
-Actionoutput:0 row(s) affected Records: 0  Duplicates: 0  Warnings: 0
-query3:-- DUPLICATE CHECK
-select *,
-row_number() over(partition by productid,productname,category,stocklevel,price order by productid)
-as duplicate_check from product_inventory;
-Actionoutput:200 row(s) returned
-query4:-- checking null values , blank and spaces for each column
-select * from product_inventory
-where productid is null
-or trim(productid)='';
-Actionoutput:0 row(s) returned
-query5:select * from product_inventory
-where ProductName is null
-or trim(ProductName)='';
-Actionoutput:0 row(s) returned
-query6:select * from product_inventory
-where Category is null
-or trim(Category)='';
-Actionoutput:0 row(s) returned
-query7:select * from product_inventory
-where StockLevel is null
-or trim(StockLevel)='';
-Actionoutput:0 row(s) returned
-query8:select * from product_inventory
-where Price is null
-or trim(Price)='';
-Actionoutput:0 row(s) returned
-query9:finding outlier in price column if exist
-select min(price),max(price) from product_inventory;
-Actionoutput:1 row(s) returned(it has valid price range between 10 and 99,hence no outliers are present)
--- analyzing and data cleaning of customer_profile table
-query10:-- retrieving data from customer_profile table
-select * from customer_profile;
-Actionoutput:1000 row(s) returned
-query11:-- renaming to customerid
-alter table customer_profile
-rename column ï»¿CustomerID to customerid;
-Actionoutput:0 row(s) affected Records: 0  Duplicates: 0  Warnings: 0
-query12:-- checking null,blank and spaces in customer_profile table
- select * from customer_profile
- where customerid is null
- or trim(customerid)='';
- Actionoutput:0 row(s) returned
- query13:select * from customer_profile
- where Age is null
- or trim(Age)='';
- Actionoutput:0 row(s) returned
-query14:select * from customer_profile
- where Gender is null
- or trim(Gender)='';
- Actionoutput:0 row(s) returned
- query15:select * from customer_profile
- where Location is null
- or trim(Location)='';
- Actionoutput:13 row(s) returned(here blank values are present)
- query16 -- Imputing blank values using mode
- SELECT Location, COUNT(*) AS cnt
+-- ============================================================
+--          RETAIL ANALYTICS CASE STUDY
+-- ============================================================
+
+
+-- ------------------------------------------------------------
+-- SECTION 1: product_inventory — Analysis & Data Cleaning
+-- ------------------------------------------------------------
+
+-- Query 1: Retrieve all data from product_inventory
+SELECT * FROM product_inventory;
+-- Output: 200 row(s) returned
+
+
+-- Query 2: Rename BOM-corrupted column to productid
+ALTER TABLE product_inventory
+    RENAME COLUMN ï»¿ProductID TO productid;
+-- Output: 0 row(s) affected
+
+
+-- Query 3: Duplicate check
+SELECT *,
+    ROW_NUMBER() OVER (
+        PARTITION BY productid, productname, category, stocklevel, price
+        ORDER BY productid
+    ) AS duplicate_check
+FROM product_inventory;
+-- Output: 200 row(s) returned
+
+
+-- Query 4: Null / blank check — productid
+SELECT * FROM product_inventory
+WHERE productid IS NULL
+   OR TRIM(productid) = '';
+-- Output: 0 row(s) returned
+
+
+-- Query 5: Null / blank check — ProductName
+SELECT * FROM product_inventory
+WHERE ProductName IS NULL
+   OR TRIM(ProductName) = '';
+-- Output: 0 row(s) returned
+
+
+-- Query 6: Null / blank check — Category
+SELECT * FROM product_inventory
+WHERE Category IS NULL
+   OR TRIM(Category) = '';
+-- Output: 0 row(s) returned
+
+
+-- Query 7: Null / blank check — StockLevel
+SELECT * FROM product_inventory
+WHERE StockLevel IS NULL
+   OR TRIM(StockLevel) = '';
+-- Output: 0 row(s) returned
+
+
+-- Query 8: Null / blank check — Price
+SELECT * FROM product_inventory
+WHERE Price IS NULL
+   OR TRIM(Price) = '';
+-- Output: 0 row(s) returned
+
+
+-- Query 9: Outlier check on Price column
+SELECT MIN(price), MAX(price) FROM product_inventory;
+-- Output: 1 row(s) returned (valid price range 10–99; no outliers present)
+
+
+-- ------------------------------------------------------------
+-- SECTION 2: customer_profile — Analysis & Data Cleaning
+-- ------------------------------------------------------------
+
+-- Query 10: Retrieve all data from customer_profile
+SELECT * FROM customer_profile;
+-- Output: 1000 row(s) returned
+
+
+-- Query 11: Rename BOM-corrupted column to customerid
+ALTER TABLE customer_profile
+    RENAME COLUMN ï»¿CustomerID TO customerid;
+-- Output: 0 row(s) affected
+
+
+-- Query 12: Null / blank check — customerid
+SELECT * FROM customer_profile
+WHERE customerid IS NULL
+   OR TRIM(customerid) = '';
+-- Output: 0 row(s) returned
+
+
+-- Query 13: Null / blank check — Age
+SELECT * FROM customer_profile
+WHERE Age IS NULL
+   OR TRIM(Age) = '';
+-- Output: 0 row(s) returned
+
+
+-- Query 14: Null / blank check — Gender
+SELECT * FROM customer_profile
+WHERE Gender IS NULL
+   OR TRIM(Gender) = '';
+-- Output: 0 row(s) returned
+
+
+-- Query 15: Null / blank check — Location
+SELECT * FROM customer_profile
+WHERE Location IS NULL
+   OR TRIM(Location) = '';
+-- Output: 13 row(s) returned (blank values present)
+
+
+-- Query 16: Find mode of Location to use for imputation
+SELECT Location, COUNT(*) AS cnt
 FROM customer_profile
 WHERE TRIM(Location) <> ''
 GROUP BY Location
 ORDER BY cnt DESC
 LIMIT 1;
-Actionoutput:1 row(s) returned
-query17:-- updating blanks by imputing them with 'West'
-set sql_safe_updates=0;
-update customer_profile
-set Location='West'
-where Location='';
-Actionoutput:13 row(s) affected Rows matched: 13  Changed: 13  Warnings: 0
-query18:-- verify the updation
-select * from customer_profile
- where Location is null
- or trim(Location)='';
- Actionoutput:0 row(s) returned
- query19:-- handling the outliers in age column
-select min(Age),max(Age) from customer_profile;
-Actionoutput:1 row(s) returned
-query20:set sql_safe_updates=0;
-update customer_profile
-set Age=69
-where Age=131;
-Actionoutput:1 row(s) affected Rows matched: 1  Changed: 1  Warnings: 0
-query21:-- changing the datatype of JoinDate column from text to date
-select joinDate from customer_profile;
-Actionoutput:1000 row(s) returned
-query22:update customer_profile
-set JoinDate=str_to_date(JoinDate,'%d/%m/%y')
-where JoinDate regexp '^[0-9]{1,2}/[0-9]{1,2}/[0-9]{1,2}$';
-Actionoutput:1000 row(s) affected Rows matched: 1000  Changed: 1000  Warnings: 0
-query23:--verify
-select JoinDate from customer_profile;
-Actionoutput:1000 row(s) returned
-query24:alter table customer_profile
-modify column JoinDate date;
-Actionoutput:1000 row(s) affected Records: 1000  Duplicates: 0  Warnings: 0
--- analyzing and data cleaning of sales_transaction table
-query25:select * from sales_transaction;
-Actionoutput:2000 row(s) returned
-query26:-- renaming column to transactionid
- alter table sales_transaction
- rename column ï»¿TransactionID to transactionid;
- Actionoutput:0 row(s) affected Records: 0  Duplicates: 0  Warnings: 0
- query27:-- checking duplicates
- select *,
- row_number() over(partition by transactionid,customerid,productid,quantitypurchased,transactiondate,price order by transactionid)
- as duplicates;
- Actionoutput:5002 row(s) returned
- query28:-- verifying the duplicates
- select transactionid
- from sales_transaction
- group by transactionid
- having count(transactionid)>1;
- Actionoutput:2 row(s) returned
-query29:/*deleting the duplicates by creating a distinct new table from previous table 
-and then dropping the previous table*/
- create table vaibhav as
- select distinct * from sales_transaction;
- Actionoutput:5000 row(s) affected Records: 5000  Duplicates: 0  Warnings: 0
- query30: drop table sales_transaction;
- Actionoutput:0 row(s) affected
-query31:alter table vaibhav
- rename sales_transaction;
- Actionoutput:0 row(s) affected
-query32:select * from sales_transaction;
-Actionoutput:2000 row(s) returned
-query33:-- checking null,blank and spaces in sales_transaction
- select * from sales_transaction
- where transactionid is null
- or trim(transactionid)='';
- Actionoutput:0 row(s) returned
-query34:select * from sales_transaction
- where CustomerID is null
- or trim(CustomerID)='';
- Actionoutput:0 row(s) returned
-query35:select * from sales_transaction
- where ProductID is null
- or trim(ProductID)='';
- Actionoutput:0 row(s) returned
- query36:select * from sales_transaction
- where QuantityPurchased is null
- or trim(QuantityPurchased)='';
- Actionoutput:0 row(s) returned
-query37:select * from sales_transaction
- where TransactionDate is null
- or trim(TransactionDate)='';
- Actionoutput:0 row(s) returned
-query38:select * from sales_transaction
- where Price is null
- or trim(Price)='';
- Actionoutput:0 row(s) returned
-query39:-- checking for outliers if exist in sales_transaction table
- select min(QuantityPurchased),max(QuantityPurchased)  -- range from 1to4 shows normal behaviour unless business rule fix the value 
- from sales_transaction;
- Actionoutput:1 row(s) returned
- query40:select min(Price),max(Price) -- 9312 is significantly high value
- from sales_transaction;
- Actionoutput:1 row(s) returned
- query41:--finding the root cause
- select c.customerid,c.JoinDate,p.ProductName,p.Price,s.ProductID,s.QuantityPurchased,s.Price
- from customer_profile c inner join sales_transaction s
- on c.customerid=s.CustomerID inner join product_inventory p
- on p.productid=s.ProductID
- order by s.Price desc;
- Actionoutput:2000 row(s) returned
-query42:-- updating value from 9312 to 93.12
-set sql_safe_updates=0;
- update sales_transaction
- set Price=93.12
- where Price=9312;
- Actionoutput:20 row(s) affected Rows matched: 20  Changed: 20  Warnings: 0
- query43:-- veryfying the changes
-  select ProductID,Price
- from sales_transaction
- order by Price desc;
- Actionoutput:2000 row(s) returned
-query44:-- changing datatype from text to date of TransactionDate column
-update sales_transaction
- set TransactionDate=str_to_date(TransactionDate,'%d/%m/%y')
- where TransactionDate regexp'^[0-9]{1,2}/[0-9]{1,2}/[0-9]{1,2}$';
- Actionoutput:5000 row(s) affected Rows matched: 5000  Changed: 5000  Warnings: 0
-query45:select TransactionDate from sales_transaction;
-Actionoutput:2000 row(s) returned
-query46:alter table sales_transaction
- modify column TransactionDate date;
- Actionoutput:5000 row(s) affected Records: 5000  Duplicates: 0  Warnings: 0
-query47:                                 /*INSIGHTS*/
- -- summarize the total sales and quantities sold per product by the company.
- select ProductID,sum(QuantityPurchased) as TotalUnitsSold,
- sum(QuantityPurchased*Price) as TotalSales
- from sales_transaction
- group by ProductID
- order by TotalSales desc;
- Actionoutput:200 row(s) returned
-query48:-- count the number of transactions per customer to understand purchase frequency.
- select CustomerID,count(*) as NumberOfTransactions
- from sales_transaction
- group by CustomerID
- order by NumberOfTransactions desc;
- Actionoutput:989 row(s) returned
- query49:/*Evaluating the performance of the product categories based on the total sales 
- which help us understand the product categories which needs to be promoted in the marketing campaigns*/
- select p.Category,sum(s.QuantityPurchased) as TotalUnitsSold,
- sum(s.QuantityPurchased*s.Price) as TotalSales
- from sales_transaction s inner join product_inventory p
- on p.productid=s.ProductID
- group by p.Category
- order by TotalSales desc;
- Actionoutput:4 row(s) returned
- query50:--  top 10 products with the highest total sales revenue from the sales transactions
-select ProductID,sum(QuantityPurchased*Price) as TotalRevenue
-from sales_transaction
-group by ProductID
-order by TotalRevenue desc
-limit 10;
-Actionoutput:10 row(s) returned
-query51:/*finding the ten products with the least amount of units sold from the sales transactions, 
-provided that at least one unit was sold for those products*/
-select ProductID,sum(QuantityPurchased) as TotalUnitsSold
-from sales_transaction  
-group by ProductID
-having sum(QuantityPurchased)>1
-order by TotalUnitsSold
-limit 10;
-Actionoutput:10 row(s) returned
-query52:-- Identifying the sales trend to understand the revenue pattern of the company.
-select Transactiondate as DATETRANS,count(*) as Transaction_count,
-sum(QuantityPurchased) as TotalUnitsSold,round(sum(QuantityPurchased*Price),2) as TotalSales
-from sales_transaction
-group by TransactionDate
-order by TransactionDate desc;
-Actionoutput:209 row(s) returned
-query53:/*month on month growth rate of sales of the company which will help 
-understand the growth trend of the company*/
-with cte as(
-    select month(TransactionDate) as month,
-    round(sum(QuantityPurchased*Price),2) as total_sales
-    from sales_transaction
-    group by month(TransactionDate)
+-- Output: 1 row(s) returned
+
+
+-- Query 17: Impute blank Location values with mode ('West')
+SET sql_safe_updates = 0;
+UPDATE customer_profile
+SET Location = 'West'
+WHERE Location = '';
+-- Output: 13 row(s) affected
+
+
+-- Query 18: Verify Location imputation
+SELECT * FROM customer_profile
+WHERE Location IS NULL
+   OR TRIM(Location) = '';
+-- Output: 0 row(s) returned
+
+
+-- Query 19: Outlier check on Age column
+SELECT MIN(Age), MAX(Age) FROM customer_profile;
+-- Output: 1 row(s) returned
+
+
+-- Query 20: Fix outlier Age value (131 → 69)
+SET sql_safe_updates = 0;
+UPDATE customer_profile
+SET Age = 69
+WHERE Age = 131;
+-- Output: 1 row(s) affected
+
+
+-- Query 21: Inspect JoinDate before type conversion
+SELECT joinDate FROM customer_profile;
+-- Output: 1000 row(s) returned
+
+
+-- Query 22: Convert JoinDate from text (DD/MM/YY) to DATE
+UPDATE customer_profile
+SET JoinDate = STR_TO_DATE(JoinDate, '%d/%m/%y')
+WHERE JoinDate REGEXP '^[0-9]{1,2}/[0-9]{1,2}/[0-9]{1,2}$';
+-- Output: 1000 row(s) affected
+
+
+-- Query 23: Verify JoinDate conversion
+SELECT JoinDate FROM customer_profile;
+-- Output: 1000 row(s) returned
+
+
+-- Query 24: Change JoinDate column datatype to DATE
+ALTER TABLE customer_profile
+    MODIFY COLUMN JoinDate DATE;
+-- Output: 1000 row(s) affected
+
+
+-- ------------------------------------------------------------
+-- SECTION 3: sales_transaction — Analysis & Data Cleaning
+-- ------------------------------------------------------------
+
+-- Query 25: Retrieve all data from sales_transaction
+SELECT * FROM sales_transaction;
+-- Output: 2000 row(s) returned
+
+
+-- Query 26: Rename BOM-corrupted column to transactionid
+ALTER TABLE sales_transaction
+    RENAME COLUMN ï»¿TransactionID TO transactionid;
+-- Output: 0 row(s) affected
+
+
+-- Query 27: Duplicate check
+SELECT *,
+    ROW_NUMBER() OVER (
+        PARTITION BY transactionid, customerid, productid,
+                     quantitypurchased, transactiondate, price
+        ORDER BY transactionid
+    ) AS duplicates
+FROM sales_transaction;
+-- Output: 5002 row(s) returned
+
+
+-- Query 28: Verify duplicate transaction IDs
+SELECT transactionid
+FROM sales_transaction
+GROUP BY transactionid
+HAVING COUNT(transactionid) > 1;
+-- Output: 2 row(s) returned
+
+
+-- Query 29: Create deduplicated table (distinct rows only)
+CREATE TABLE vaibhav AS
+    SELECT DISTINCT * FROM sales_transaction;
+-- Output: 5000 row(s) affected
+
+
+-- Query 30: Drop original table with duplicates
+DROP TABLE sales_transaction;
+-- Output: 0 row(s) affected
+
+
+-- Query 31: Rename deduplicated table back to sales_transaction
+ALTER TABLE vaibhav
+    RENAME sales_transaction;
+-- Output: 0 row(s) affected
+
+
+-- Query 32: Confirm deduplication
+SELECT * FROM sales_transaction;
+-- Output: 2000 row(s) returned
+
+
+-- Query 33: Null / blank check — transactionid
+SELECT * FROM sales_transaction
+WHERE transactionid IS NULL
+   OR TRIM(transactionid) = '';
+-- Output: 0 row(s) returned
+
+
+-- Query 34: Null / blank check — CustomerID
+SELECT * FROM sales_transaction
+WHERE CustomerID IS NULL
+   OR TRIM(CustomerID) = '';
+-- Output: 0 row(s) returned
+
+
+-- Query 35: Null / blank check — ProductID
+SELECT * FROM sales_transaction
+WHERE ProductID IS NULL
+   OR TRIM(ProductID) = '';
+-- Output: 0 row(s) returned
+
+
+-- Query 36: Null / blank check — QuantityPurchased
+SELECT * FROM sales_transaction
+WHERE QuantityPurchased IS NULL
+   OR TRIM(QuantityPurchased) = '';
+-- Output: 0 row(s) returned
+
+
+-- Query 37: Null / blank check — TransactionDate
+SELECT * FROM sales_transaction
+WHERE TransactionDate IS NULL
+   OR TRIM(TransactionDate) = '';
+-- Output: 0 row(s) returned
+
+
+-- Query 38: Null / blank check — Price
+SELECT * FROM sales_transaction
+WHERE Price IS NULL
+   OR TRIM(Price) = '';
+-- Output: 0 row(s) returned
+
+
+-- Query 39: Outlier check — QuantityPurchased
+SELECT MIN(QuantityPurchased), MAX(QuantityPurchased)
+FROM sales_transaction;
+-- Output: 1 row(s) returned (range 1–4; normal behaviour)
+
+
+-- Query 40: Outlier check — Price
+SELECT MIN(Price), MAX(Price)
+FROM sales_transaction;
+-- Output: 1 row(s) returned (9312 is significantly high — investigate)
+
+
+-- Query 41: Root-cause analysis for the Price outlier via joined tables
+SELECT
+    c.customerid,
+    c.JoinDate,
+    p.ProductName,
+    p.Price           AS catalog_price,
+    s.ProductID,
+    s.QuantityPurchased,
+    s.Price           AS transaction_price
+FROM customer_profile c
+    INNER JOIN sales_transaction s  ON c.customerid  = s.CustomerID
+    INNER JOIN product_inventory  p ON p.productid   = s.ProductID
+ORDER BY s.Price DESC;
+-- Output: 2000 row(s) returned
+
+
+-- Query 42: Fix data-entry error — 9312 → 93.12
+SET sql_safe_updates = 0;
+UPDATE sales_transaction
+SET Price = 93.12
+WHERE Price = 9312;
+-- Output: 20 row(s) affected
+
+
+-- Query 43: Verify Price correction
+SELECT ProductID, Price
+FROM sales_transaction
+ORDER BY Price DESC;
+-- Output: 2000 row(s) returned
+
+
+-- Query 44: Convert TransactionDate from text (DD/MM/YY) to DATE
+UPDATE sales_transaction
+SET TransactionDate = STR_TO_DATE(TransactionDate, '%d/%m/%y')
+WHERE TransactionDate REGEXP '^[0-9]{1,2}/[0-9]{1,2}/[0-9]{1,2}$';
+-- Output: 5000 row(s) affected
+
+
+-- Query 45: Verify TransactionDate conversion
+SELECT TransactionDate FROM sales_transaction;
+-- Output: 2000 row(s) returned
+
+
+-- Query 46: Change TransactionDate column datatype to DATE
+ALTER TABLE sales_transaction
+    MODIFY COLUMN TransactionDate DATE;
+-- Output: 5000 row(s) affected
+
+
+-- ============================================================
+--                        INSIGHTS
+-- ============================================================
+
+-- Query 47: Total sales and units sold per product
+SELECT
+    ProductID,
+    SUM(QuantityPurchased)            AS TotalUnitsSold,
+    SUM(QuantityPurchased * Price)    AS TotalSales
+FROM sales_transaction
+GROUP BY ProductID
+ORDER BY TotalSales DESC;
+-- Output: 200 row(s) returned
+
+
+-- Query 48: Transaction count per customer (purchase frequency)
+SELECT
+    CustomerID,
+    COUNT(*) AS NumberOfTransactions
+FROM sales_transaction
+GROUP BY CustomerID
+ORDER BY NumberOfTransactions DESC;
+-- Output: 989 row(s) returned
+
+
+-- Query 49: Category performance by total sales
+-- (identifies categories to prioritise in marketing campaigns)
+SELECT
+    p.Category,
+    SUM(s.QuantityPurchased)            AS TotalUnitsSold,
+    SUM(s.QuantityPurchased * s.Price)  AS TotalSales
+FROM sales_transaction s
+    INNER JOIN product_inventory p ON p.productid = s.ProductID
+GROUP BY p.Category
+ORDER BY TotalSales DESC;
+-- Output: 4 row(s) returned
+
+
+-- Query 50: Top 10 products by total revenue
+SELECT
+    ProductID,
+    SUM(QuantityPurchased * Price) AS TotalRevenue
+FROM sales_transaction
+GROUP BY ProductID
+ORDER BY TotalRevenue DESC
+LIMIT 10;
+-- Output: 10 row(s) returned
+
+
+-- Query 51: Bottom 10 products by units sold (min 1 unit sold)
+SELECT
+    ProductID,
+    SUM(QuantityPurchased) AS TotalUnitsSold
+FROM sales_transaction
+GROUP BY ProductID
+HAVING SUM(QuantityPurchased) > 1
+ORDER BY TotalUnitsSold ASC
+LIMIT 10;
+-- Output: 10 row(s) returned
+
+
+-- Query 52: Daily sales trend (revenue pattern over time)
+SELECT
+    TransactionDate                           AS DateOfTransaction,
+    COUNT(*)                                  AS TransactionCount,
+    SUM(QuantityPurchased)                    AS TotalUnitsSold,
+    ROUND(SUM(QuantityPurchased * Price), 2)  AS TotalSales
+FROM sales_transaction
+GROUP BY TransactionDate
+ORDER BY TransactionDate DESC;
+-- Output: 209 row(s) returned
+
+
+-- Query 53: Month-on-month sales growth rate
+WITH cte AS (
+    SELECT
+        MONTH(TransactionDate)                    AS month,
+        ROUND(SUM(QuantityPurchased * Price), 2)  AS total_sales
+    FROM sales_transaction
+    GROUP BY MONTH(TransactionDate)
 )
-select *,
-lag(total_sales,1,null) over(order by month )
-as previous_month_sales,
-ROUND(((total_sales - LAG(total_sales) 
-OVER (ORDER BY month)) / LAG(total_sales) 
-OVER (ORDER BY month)) * 100, 2) AS mom_growth_percentage
-from cte;
-Actionoutput:7 row(s) returned
-query54:/*Finding the number of transaction along with the total amount spent by each customer which are on the higher side 
-and will help us understand the customers who are the high frequency purchase customers in the company*/
-select CustomerID,count(*) as NumberOfTransactions,sum(QuantityPurchased*Price) as TotalSpent
-from sales_transaction
-group by CustomerID
-having count(*)>10 and TotalSpent>1000
-order by TotalSpent desc;
-Actionoutput:18 row(s) returned
-query55:/*describes the number of transaction along with the total amount spent by each customer, 
-which will help us understand the customers who are occasional customers 
-or have low purchase frequency in the company*/
-select CustomerID,count(*) as NumberOfTransactions,sum(QuantityPurchased*Price) as TotalSpent
-from Sales_transaction
-group by CustomerID
-having count(*)<=2
-order by NumberOfTransactions asc,TotalSpent desc;
-Actionoutput:130 row(s) returned
-query56:/*describes the total number of purchases made by each customer against each productID 
-to understand the repeat customers in the company*/
-select CustomerID,ProductID,count(*) as TimesPurchased
-from Sales_transaction
-group by CustomerID,ProductID
-having count(*)>1
-order by  TimesPurchased desc;
-Action:70 row(s) returned
-query57:/*Describing the duration between the first and the last purchase of the customer 
-in that particular company to understand the loyalty of the customer*/
-select CustomerID,min(TransactionDate) as FirstPurchase,max(TransactionDate) as LastPurchase,
-datediff(max(Transactiondate),min(TransactionDate)) as DaysbetweenPurchases
-from sales_transaction
-group by CustomerID
-having DaysbetweenPurchases>0
-order by DaysbetweenPurchases desc;
-Actionoutput:950 row(s) returned
-query58:/*customer segmentation based on the total quantity of products they have purchased.
- Also, counting the number of customers in each segment 
- which will help us target a particular segment for marketing*/
- with customer_segment as (
-    select 
-        c.Customerid,
-        case
-            WHEN sum(s.QuantityPurchased) between 1 and 10 then 'Low'
-            WHEN SUM(s.QuantityPurchased) between 11 and 30 then 'Med'
+SELECT
+    *,
+    LAG(total_sales, 1, NULL) OVER (ORDER BY month) AS previous_month_sales,
+    ROUND(
+        (total_sales - LAG(total_sales) OVER (ORDER BY month))
+        / LAG(total_sales) OVER (ORDER BY month) * 100,
+        2
+    ) AS mom_growth_percentage
+FROM cte;
+-- Output: 7 row(s) returned
+
+
+-- Query 54: High-frequency, high-spend customers (>10 transactions AND >$1000 spent)
+SELECT
+    CustomerID,
+    COUNT(*)                       AS NumberOfTransactions,
+    SUM(QuantityPurchased * Price) AS TotalSpent
+FROM sales_transaction
+GROUP BY CustomerID
+HAVING COUNT(*) > 10
+   AND TotalSpent > 1000
+ORDER BY TotalSpent DESC;
+-- Output: 18 row(s) returned
+
+
+-- Query 55: Low-frequency customers (≤2 transactions — occasional buyers)
+SELECT
+    CustomerID,
+    COUNT(*)                       AS NumberOfTransactions,
+    SUM(QuantityPurchased * Price) AS TotalSpent
+FROM sales_transaction
+GROUP BY CustomerID
+HAVING COUNT(*) <= 2
+ORDER BY NumberOfTransactions ASC, TotalSpent DESC;
+-- Output: 130 row(s) returned
+
+
+-- Query 56: Repeat purchases — customers who bought the same product more than once
+SELECT
+    CustomerID,
+    ProductID,
+    COUNT(*) AS TimesPurchased
+FROM sales_transaction
+GROUP BY CustomerID, ProductID
+HAVING COUNT(*) > 1
+ORDER BY TimesPurchased DESC;
+-- Output: 70 row(s) returned
+
+
+-- Query 57: Customer loyalty — days between first and last purchase
+SELECT
+    CustomerID,
+    MIN(TransactionDate)                                   AS FirstPurchase,
+    MAX(TransactionDate)                                   AS LastPurchase,
+    DATEDIFF(MAX(TransactionDate), MIN(TransactionDate))   AS DaysBetweenPurchases
+FROM sales_transaction
+GROUP BY CustomerID
+HAVING DaysBetweenPurchases > 0
+ORDER BY DaysBetweenPurchases DESC;
+-- Output: 950 row(s) returned
+
+
+-- Query 58: Customer segmentation by total units purchased
+-- (Low: 1–10 units | Med: 11–30 units | High: 31+ units)
+WITH customer_segment AS (
+    SELECT
+        c.CustomerID,
+        CASE
+            WHEN SUM(s.QuantityPurchased) BETWEEN 1  AND 10 THEN 'Low'
+            WHEN SUM(s.QuantityPurchased) BETWEEN 11 AND 30 THEN 'Med'
             ELSE 'High'
         END AS CustomerSegment
     FROM customer_profile c
-    INNER JOIN sales_transaction s
-        ON c.CustomerID = s.CustomerID
+        INNER JOIN sales_transaction s ON c.CustomerID = s.CustomerID
     GROUP BY c.CustomerID
 )
-SELECT 
+SELECT
     CustomerSegment,
-    COUNT(*) as num_cust
+    COUNT(*) AS num_cust
 FROM customer_segment
 GROUP BY CustomerSegment
-order by CustomerSegment;
-Actionoutput:3 row(s) returned
-
-
-
-
-
-
-
-
-
-
- 
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ORDER BY CustomerSegment;
+-- Output: 3 row(s) returned
