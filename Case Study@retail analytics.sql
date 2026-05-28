@@ -6,25 +6,31 @@
 
 -- query0.1:Original table structure of customer_profile table 
  select * from `customer_profiles-1-1714027410`;
+-- output:1000 row(s) returned
 -- query0.1.1:creating customer_profile table from source table
  create table customer_profile as
  select * from `customer_profiles-1-1714027410`;
 -- query0.1.2:retrieving the customer_profile table data
  select * from customer_profile;
+-- output:1000 row(s) returned
 -- query0.2:Original table structure of product_inventory table
  select * from `product_inventory-1-1714027438`;
+-- output:200 row(s) returned
 -- query0.2.1:creating product_inventory table from source table
  create table product_inventory as
  select * from `product_inventory-1-1714027438`;
 -- query0.2.2:retrieving the product_inventory table data
  select * from product_inventory;
+-- output:200 row(s) returned
 -- query0.3:original table structure of sales_transaction table
  select * from `sales_transaction-1714027462`;
+-- output:2000 row(s) returned
 -- query0.3.1:creating sales_transaction table from source table
  create table sales_transaction as
  select * from `sales_transaction-1714027462`;
 -- query0.3.3:retrieving the sales_transaction table data
  select * from sales_transaction;
+-- output:2000 row(s) returned
 
 -- Analyzing and data cleaning of product_inventory table
 query1:-- retreiving data of product_inventory 
