@@ -69,21 +69,18 @@ The analysis answers key business and analytical questions such as:
 - How can customers be segmented based on purchase quantity?
 
 
----📊 Advanced SQL Analysis — Key Queries & Insights
+## 📊 Advanced SQL Analysis — Key Queries & Insights
+
 This section highlights five important analytical SQL queries performed on the retail dataset.
 Each query includes:
+- Clean SQL
+- Output summary
+- Business interpretation
+- Screenshot of the result
 
-Clean SQL
+🔹 Query 58 —  Customer Segmentation Based on Purchase Quantity
 
-Output summary
-
-Business interpretation
-
-Screenshot of the result
-
-🔹 Query 58 — Customer Segmentation Based on Purchase Quantity
-
-WITH customer_segment AS (
+```WITH customer_segment AS (
     SELECT 
         c.CustomerID,
         CASE
@@ -102,24 +99,19 @@ SELECT
 FROM customer_segment
 GROUP BY CustomerSegment
 ORDER BY CustomerSegment;
+```
+
 ![Query 58 Output](retail@query58.png)
 
----output
-CustomerSegment	 Number of Customers
-High	                 7
-Low	                  423
-Med	                  559
+### **Insight**
+- A very small High segment (7 customers) indicates a classic Pareto pattern — a tiny group drives a large share of revenue.
+- Most customers fall into Low and Medium segments, ideal for targeted marketing.
 
-
----Insight
-
-A very small High segment (7 customers) indicates a classic Pareto pattern — a tiny group drives a large share of revenue.
-Most customers fall into Low and Medium segments, ideal for targeted marketing.
-
+---
 
 🔹 Query 57 — Customer Lifecycle: First vs Last Purchase Gap
 
-SELECT 
+```SELECT 
     CustomerID,
     MIN(TransactionDate) AS FirstPurchase,
     MAX(TransactionDate) AS LastPurchase,
@@ -128,25 +120,19 @@ FROM sales_transaction
 GROUP BY CustomerID
 HAVING DaysbetweenPurchases > 0
 ORDER BY DaysbetweenPurchases DESC;
+```
+
 ![Query 57 Output](retail@query57.png)
 
----Output (Top 10)
-CustomerID	First Purchase	Last Purchase	Days Between
-215	         2023-01-01	    2023-07-28	      208
-414	         2023-01-02	    2023-07-26	      205
-664	         2023-01-01	    2023-07-24	      204
-701	         2023-01-01	    2023-07-23	      203
-277	         2023-01-02	    2023-07-24	      203
+### **Insight**
+ - Customers with long active durations (200+ days) show strong retention.
+ - This query helps identify loyal customers and estimate Customer Lifetime Value (CLV).
 
-
----Insight
-Customers with long active durations (200+ days) show strong retention.
-This query helps identify loyal customers and estimate Customer Lifetime Value (CLV).
-
+---
 
 🔹 Query 56 — Repeat Purchase Behavior (Customer × Product)
 
-SELECT 
+```SELECT 
     CustomerID,
     ProductID,
     COUNT(*) AS TimesPurchased
@@ -154,26 +140,19 @@ FROM sales_transaction
 GROUP BY CustomerID, ProductID
 HAVING COUNT(*) > 1
 ORDER BY TimesPurchased DESC;
+```
+
 ![Query 56 Output](retail@query56.png)
 
----Output (Sample)
-CustomerID	ProductID	Times Purchased
-685	           192	           3
-467	           181	           2
-215	            13	           2
-492             74	           2
+### **Insight**
+- Repeat purchases indicate product satisfaction and loyalty.
+- Products with high repeat frequency should be prioritized for inventory planning and promotions.
 
+---
 
+🔹 Query 55 —  Low‑Frequency Customers (≤ 2 Transactions)
 
----Insight
-Repeat purchases indicate product satisfaction and loyalty.
-Products with high repeat frequency should be prioritized for inventory planning and promotions.
-
-
-
-🔹 Query 55 — Low‑Frequency Customers (≤ 2 Transactions)
-
-SELECT 
+```SELECT 
     CustomerID,
     COUNT(*) AS NumberOfTransactions,
     SUM(QuantityPurchased * Price) AS TotalSpent
@@ -181,24 +160,19 @@ FROM sales_transaction
 GROUP BY CustomerID
 HAVING COUNT(*) <= 2
 ORDER BY NumberOfTransactions ASC, TotalSpent DESC;
+```
+
 ![Query 55 Output](retail@query55.png)
 
----Output (Sample)
-CustomerID	Transactions	Total Spent
-94	           1	            360.64
-181	           1	            298.23
-979	           1	            265.16
-317	           1	            257.73
-
-
----Insight
-These are high‑value but low‑frequency buyers.
-They are ideal targets for re‑engagement campaigns to increase repeat purchases.
-
+### **Insight**
+- These are high‑value but low‑frequency buyers.
+- They are ideal targets for re‑engagement campaigns to increase repeat purchases.
+  
+---
 
 🔹 Query 54 — High‑Value Customers (Frequent Buyers + High Spend)
 
-SELECT 
+```SELECT 
     CustomerID,
     COUNT(*) AS NumberOfTransactions,
     SUM(QuantityPurchased * Price) AS TotalSpent
@@ -207,28 +181,17 @@ GROUP BY CustomerID
 HAVING COUNT(*) > 10 
    AND TotalSpent > 1000
 ORDER BY TotalSpent DESC;
+```
+
 ![Query 54 Output](retail@query54.png)
 
----Output (Sample)
-CustomerID	Transactions	Total Spent
-936	           12	           2834.47
-664	           14	           2519.04
-670	           12	           2432.15
-39	           12	           2221.29
-
-
-
----Insight
-These customers form the core loyal base.
-They should be prioritized for:
-
-Loyalty programs
-
-Exclusive offers
-
-Personalized recommendations
-
-They contribute heavily to overall revenue.
+### **Insight**
+- These customers form the core loyal base.
+- They should be prioritized for:
+  - Loyalty programs
+  - Exclusive offers
+  - Personalized recommendations
+  - They contribute heavily to overall revenue.
 
 ---
 
