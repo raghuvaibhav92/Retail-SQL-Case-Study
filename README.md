@@ -80,7 +80,8 @@ Each query includes:
 
 🔹 Query 58 —  Customer Segmentation Based on Purchase Quantity
 
-```WITH customer_segment AS (
+```
+WITH customer_segment AS (
     SELECT 
         c.CustomerID,
         CASE
@@ -111,7 +112,8 @@ ORDER BY CustomerSegment;
 
 🔹 Query 57 — Customer Lifecycle: First vs Last Purchase Gap
 
-```SELECT 
+```
+SELECT 
     CustomerID,
     MIN(TransactionDate) AS FirstPurchase,
     MAX(TransactionDate) AS LastPurchase,
@@ -132,7 +134,8 @@ ORDER BY DaysbetweenPurchases DESC;
 
 🔹 Query 56 — Repeat Purchase Behavior (Customer × Product)
 
-```SELECT 
+```
+SELECT 
     CustomerID,
     ProductID,
     COUNT(*) AS TimesPurchased
@@ -152,7 +155,8 @@ ORDER BY TimesPurchased DESC;
 
 🔹 Query 55 —  Low‑Frequency Customers (≤ 2 Transactions)
 
-```SELECT 
+```
+SELECT 
     CustomerID,
     COUNT(*) AS NumberOfTransactions,
     SUM(QuantityPurchased * Price) AS TotalSpent
@@ -172,7 +176,8 @@ ORDER BY NumberOfTransactions ASC, TotalSpent DESC;
 
 🔹 Query 54 — High‑Value Customers (Frequent Buyers + High Spend)
 
-```SELECT 
+```
+SELECT 
     CustomerID,
     COUNT(*) AS NumberOfTransactions,
     SUM(QuantityPurchased * Price) AS TotalSpent
