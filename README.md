@@ -19,12 +19,16 @@ The case study is based on three relational tables:
 - StockLevel  
 - Price  
 
+![Query 0.2 Output](retail@query0.2.png)
+
 ### 2. Customer Profile
 - CustomerID  
 - Age  
 - Gender  
 - Location  
-- JoinDate  
+- JoinDate
+
+![Query 0.1 Output](retail@query0.1.png)  
 
 ### 3. Sales Transaction
 - TransactionID  
@@ -32,7 +36,9 @@ The case study is based on three relational tables:
 - ProductID  
 - QuantityPurchased  
 - TransactionDate  
-- Price  
+- Price
+
+![Query 0.3 Output](retail@query0.3.png)  
 
 ---
 
