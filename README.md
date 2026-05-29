@@ -224,17 +224,18 @@ Retail-SQL-Case-Study/
 │
 ├── Case Study@retail analytics.sql   # Complete SQL script
 ├── README.md                         # Project documentation
+```
 
 ---
 
-✅ Conclusion
+✅ **Conclusion**
 
 This project showcases how SQL can be effectively used to clean raw retail data and transform it into actionable business insights.
 It reflects real-world data challenges and demonstrates analytical thinking, problem-solving, and strong SQL fundamentals.
 
 ---
 
-👤 Author
+👤 **Author**
 
 Vaibhav Chouhan
 Aspiring Data Analyst | SQL & Retail Analytics Enthusiast
